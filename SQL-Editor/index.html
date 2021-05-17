@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+
+  <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame 
+       Remove this if you use the .htaccess -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <title>index</title>
+  <meta name="description" content="" />
+  <meta name="author" content="Richard" />
+
+  <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js" type="text/javascript" charset="ISO-8859-1"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js" type="text/javascript" charset="ISO-8859-1"></script>
+  <script src="js/knockout-1.2.1.js" type="text/javascript" charset="ISO-8859-1"></script>
+  <script src="js/mustache.js" type="text/javascript" charset="ISO-8859-1"></script>
+  <script src="js/ko.mustache.js" type="text/javascript" charset="ISO-8859-1"></script> 
+  <script src="js/main.js" type="text/javascript" charset="ISO-8859-1"></script>
+  
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css" type="text/css" rel="Stylesheet" />
+  <style type="text/css">
+  	body, * { font:"Lucida Console" 10px; margin:0; padding:0; }
+  	table td, table th { text-align:center; }
+  	footer { border:2px solid black; padding:10px; margin-top:10px; }
+	.ui-button { margin-left: -1px; font-size:10px; }
+	.ui-autocomplete-input { padding-top:10px; }
+	.ui-menu-item { width:200px; }	
+  </style>
+  
+</head>
+
+<body> 
+	<table id="cinput"></table> 
+	<div id="pcinput"></div>
+	<script id="conditionTemplate" type="text/html">
+		<tr>
+	  		<td>
+	  			<select data-bind="value: $data.getStartParen()">
+	  				<option value="">--Select--</option>
+	  				<option value="(">(</option>
+	  				<option value="((">((</option>
+	  				<option value="(((">(((</option>
+	  			</select>
+	  		</td> 
+	  		<td>  
+	  			<select data-bind="options: Main.getColumns(), optionsValue: function(a){ return a.getViewName() }, optionsText: function(b){ return b.getViewName() }, value: $data.getColumnName(), optionsCaption: '--Select--'">
+	  			</select>
+	  		</td> 
+	  		<td>
+	  			<select data-bind="value: $data.getOperator(), options: $data.getOperators(), optionsCaption: '--Select--'">
+	  			</select>
+	  		</td>
+	  		<td>
+				<select data-bind="valueUpdate: 'change', options: $data.getComparisons(), optionsText: function(item){ return item == '' ? 'Custom' : item }, disable: !$data.showPresetComparisons()">
+	  			</select>
+	  			<input type="text" data-bind="value: $data.getComparison(), valueUpdate: 'keyup', disable: !$data.showCustomComparisons()">
+			</td>
+			<td>
+	  			<select data-bind="value: $data.getEndParen()">
+	  				<option value=")">)</option>
+	  				<option value="))">))</option>
+	  				<option value=")))">)))</option>
+	  			</select>
+			</td>
+			<td>
+	  			<select data-bind="value: $data.getSeperator(), optionsCaption: '--Select--'">
+	  				<option value="">--Select--</option>
+	  				<option value="AND">AND</option>
+	  				<option value="OR">OR</option>
+	  			</select>
+			</td>
+			<td data-bind="click: Main.addPlaceholder"><img src="/images/fileTypes/check.png">Add</td>
+	  		<td data-bind="text: $data.toString()"></td>
+	  	</tr>
+	</script>	 
+  <div>
+    <header>
+      <h1>index</h1>
+    </header>
+
+    <div>
+      <table cellpadding="3" cellspacing="0" border="0" width="100%">
+      	<tbody>
+      		<tr>
+	      		<th>(</th> 
+	      		<th>Column</th> 
+	      		<th>Operator</th>
+	      		<th>Value</th>
+	      		<th>)</th>
+	      		<th>Seperator</th>
+	      		<th>Add</th>
+	      		<th>Statement</th>
+	      	</tr>
+      	</tbody>
+      	<tbody data-bind="template: { name: 'conditionTemplate', foreach: getConditions() }">
+      		
+      	</tbody>
+      </table>
+      
+    </div>
+
+    <footer data-bind="text: viewStatement()">
+     	
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Groups Manager</title>
+	<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/cupertino/jquery-ui.css" type="text/css" rel="Stylesheet" />
+	<link rel="stylesheet" type="text/css" media="screen" href="themes/ui.jqgrid.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="themes/ui.multiselect.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="themes/grid_styles.css" />
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.js" type="text/javascript" charset="ISO-8859-1"></script>
+	<script src="js/jquery-ui.js" type="text/javascript" charset="ISO-8859-1"></script>
+	<script src="js/knockout-1.2.1.js" type="text/javascript"></script>
+	<script src="js/knockout.mapping.js" type="text/javascript"></script>
+	<script src="js/jquery.layout.js" type="text/javascript"></script>
+	<script src="js/grid.locale-en.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		$.jgrid.no_legacy_api = false;
+		$.jgrid.useJSON = true;
+	</script>
+	<script src="js/ui.multiselect.js" type="text/javascript"></script>
+	<script src="js/jquery.jqGrid.min.js" type="text/javascript"></script>
+	<script src="js/grid.common.js" type="text/javascript"></script>
+	<script src="js/grid.common.js" type="text/javascript"></script>
+	<script src="js/grid.formedit.js" type="text/javascript"></script>
+	<script src="js/jquery.tablednd.js" type="text/javascript"></script>
+	<script src="js/jquery.contextmenu.js" type="text/javascript"></script>
+	<script src="js/jquery.jStorage.js" type="text/javascript"></script>
+	<script src="js/sql-parser.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/private.js" type="text/javascript"></script>
+	<script src="js/ko_grid.js" type="text/javascript"></script>
+	<script src="js/treegrid_grid.js" type="text/javascript"></script>
+	<script src="js/main.js" type="text/javascript"></script>
+	
+</head>
+<body>
+	<div class="ui-widget-overlay" id="loadingOverlay" style="display:none;">
+		<img border="0" src="images/ajax-loader.gif">
+	</div>
+	<div id="container">
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">        
+        	<tr>        
+        		<td valign="top">
+					<div>
+					    <table id="groupsGrid" data-bind="treegrid: { 
+								data: groups,
+								selectItem: selectGroup,
+								selectedItem: selectedGroup,
+								onCellSelect: selectGroup,
+								caption: 'Groups',
+								pager: '#groupsPager',
+								colModel: groupsModel,
+								ExpandTreeFunc: loadSubGroups,
+								colNames: ['id','Name','Description'],
+								editurl: ACT_DATA_URL
+							}">
+						</table> 
+						<div id="groupsPager"></div>
+					</div> 
+					
+				</td>
+				<td valign="top">
+					<table border="0" cellpadding="2" cellspacing="0" width="100%">                    
+                    	<tr>      
+                    		<td>              
+								<table id="conditionsGrid" data-bind="sortableList: conditions, grid: { 
+									data: conditions,
+									selectItem: selectCondition,
+									selectedItem: selectedCondition,
+									onCellSelect: onCellSelect,
+									afterInsertRow: afterInsertRow,
+									caption: 'Criteria Builder',
+									editor: true,
+									rowNum: 10,
+									height: conditionsGridHeight,
+									resizeHeight: contactsGridHeight,
+									width: 750,
+									hiddengrid: true,
+									pager: '#conditionPager',
+									colModel: [
+										{ name: 'ID', index: 'ID', width: 15, sortable: true },
+										{ name: '(', index: '(', width: 30, editable: true, edittype:'select',
+												editoptions:{
+													value:':;(:(;((:((;(((:(((', 
+													dataEvents: [ { type: 'click', fn: function(e) { selectedCondition.setStartParen(e.target.value); } } ] 
+												}, 
+												editrules: {
+													custom: true,
+													custom_func: validateParens
+												}
+										},
+										{ 
+											name: 'Column', index: 'Column', width: 200, editable: true, edittype: 'select', 
+											editoptions: { 
+												value: getGridColumns(), 
+												dataEvents: [
+													{ type: 'click', fn: function(e) { selectedCondition.setColumnName(e.target.value); } }
+												] 
+											},
+											editrules: {
+												required: true
+											}
+										},
+										{ 
+											name: 'Operator', index: 'Operator', width: 150, editable: true, edittype: 'custom', 
+											editoptions: { 
+												custom_element: selectedCondition.operatorTemplate, 
+												custom_value: selectedCondition.getOperator
+											},
+											editrules: {
+												required: true
+											}  
+										},
+										{ name: 'Comparison', index: 'Comparison', width: 200, editable: true, edittype: 'custom',
+											editoptions: { 
+												custom_element: selectedCondition.comparisonTemplate, 
+												custom_value: selectedCondition.getComparison
+											}
+										},
+										{ name: ')', index: ')', width: 30, editable: true, edittype:'select',
+												editoptions:{
+													value:':;):);)):));))):)))', 
+													dataEvents: [ { type: 'click', fn: function(e) { selectedCondition.setEndParen(e.target.value); } } ] 
+												}, 
+												editrules: {
+													custom: true,
+													custom_func: validateParens
+												}
+										},
+										{ name: 'Seperator', index: 'Seperator', width: 60, editable: true, edittype:'select',
+												editoptions:{
+													value:':;OR:OR;AND:AND', 
+													dataEvents: [ { type: 'click', fn: function(e) { selectedCondition.setSeperator(e.target.value); } } ] 
+												}, 
+												editrules: {
+													custom: true,
+													custom_func: validateSeperator
+												}
+										},
+										{ name: 'Statement', index: 'Statement', width: 400, editable: true, hidden:true, edittype: 'custom', 
+											editoptions: { 
+												custom_element: selectedCondition.statementTemplate, 
+												custom_value: selectedCondition.getStatement
+											} 
+										}
+									],
+									rowId: 'ID'
+						        }">
+						    	</table>
+								<div id="conditionPager"></div>
+								                    		
+								
+                    		</td>                    
+                    	</tr> 
+                    	<tr>                    
+                    		<td width="750">
+			                   <table id="contactsGrid" data-bind="grid: { 
+									data: contacts,
+									caption: 'Contacts Result',
+									rowId: 'ID',
+									colModel: contactsModel,
+									editor: false,
+									pager: '#contactsPager',
+									width: 750,
+									height: contactsGridHeight,
+									rowNum: 20
+						        }">
+						    	</table> 
+						    	<div id="contactsPager"></div>	 		
+                    		</td>                    
+                    	</tr>                
+                    </table> 
+				</td>        
+        	</tr>        
+        </table>	
+
+
+  	</div>
+</body>
+</html>
